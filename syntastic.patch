@@ -1,0 +1,23 @@
+diff --git a/syntax_checkers/haskell/ghc-mod.vim b/syntax_checkers/haskell/ghc-mod.vim
+index 7a86ffa..865caa6 100644
+--- a/syntax_checkers/haskell/ghc-mod.vim
++++ b/syntax_checkers/haskell/ghc-mod.vim
+@@ -30,7 +30,8 @@ endfunction
+ 
+ function! SyntaxCheckers_haskell_ghc_mod_GetLocList() dict
+     let makeprg = self.makeprgBuild({
+-        \ 'exe': self.getExecEscaped() . ' check' . (s:ghc_mod_new ? ' --boundary=""' : '') })
++        \ 'exe': self.getExecEscaped() . ' check' . (s:ghc_mod_new ? '' : '') })
++        " \ 'exe': self.getExecEscaped() . ' check' . (s:ghc_mod_new ? ' --boundary=""' : '') })
+ 
+     let errorformat =
+         \ '%-G%\s%#,' .
+@@ -64,7 +65,7 @@ endfunction
+ call g:SyntasticRegistry.CreateAndRegisterChecker({
+     \ 'filetype': 'haskell',
+     \ 'name': 'ghc_mod',
+-    \ 'exec': 'ghc-mod' })
++    \ 'exec': 'ghc-modi-wrapper' })
+ 
+ let &cpo = s:save_cpo
+ unlet s:save_cpo

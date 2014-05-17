@@ -2,26 +2,17 @@
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
-    gem 'ghc-modi-wrapper'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
+Install like a gem
 
     $ gem install ghc-modi-wrapper
 
 ## Usage
 
-TODO: Write usage instructions here
+First you need to modify syntastic in order to use ghc-modi-wrapper.
+You can use the `syntastic.patch` in this repo.
 
-## Contributing
+Next go to your Haskell project and run `ghc-modi-wrapper-server`.
 
-1. Fork it ( https://github.com/[my-github-username]/ghc-modi-wrapper/fork )
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+...
+
+Profit from not having to wait 5 seconds every time you save a file.
