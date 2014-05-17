@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 require "socket"
 require "fileutils"
-require "open3"
 
 PID_FILE = ".ghc-modi-wrapper.pid"
 SOCKET_FILE = ".ghc-modi-wrapper.sock"
@@ -20,48 +19,82 @@ def running_pid
   end
 end
 
-if File.exists?(PID_FILE)
-  if ARGV[0] == "-f"
-    Process.kill("KILL", running_pid) rescue nil
-    cleanup_temp
+def running?
+  Process.getpgid(running_pid)
+  true
+rescue Errno::ESRCH
+  false
+end
+
+def kill_server
+  if File.exists?(PID_FILE)
+    begin
+      Process.kill("HUP", running_pid)
+      puts "Server stopped."
+
+    # This can only happen if the pid file was present but the server
+    # wasn't running.
+    rescue Errno::ESRCH
+      puts "Process wasn't running, but pid file was present. Removing pid file."
+      FileUtils.rm(PID_FILE)
+    end
   else
-    puts "Server already running, either kill it or remove #{PID_FILE}"
-    exit 1
+    puts "Server isn't running."
   end
 end
 
-File.write(PID_FILE, Process.pid)
+def ensure_server_running
+  if running?
+    unless File.exists?(SOCKET_FILE)
+      puts "Server is broken, killing the server. Please retry your command"
+      `pkill #{running_pid}`
+      cleanup_temp
+      exit 1
+    end
+  else
+    Process.spawn("ruby internet.rb")
+    sleep 1
+  end
+end
 
-stdin, stdout, stdderr, wait_thr = Open3.popen3("ghc-modi")
+def send_command(command)
+  connection = UNIXSocket.new(SOCKET_FILE)
+  connection.puts command
 
-Socket.unix_server_loop(SOCKET_FILE) do |connection|
-  begin
-    command = connection.gets
-    puts "received #{command}"
-    stdin.puts command
+  consuming = true
+  consumed = []
 
-    consuming = true
-    consumed = []
+  count = 0
+  while consuming
+    line = connection.gets
 
-    count = 0
-    while consuming
-      line = stdout.gets
-      puts line
-
-      if count > 100 || (line && line.strip == "OK")
-        consuming = false
-      end
-
+    if (count > 20) || (line && line.strip == "OK") || line[0..1] == "NG"
+      consuming = false
+    else
       consumed << line
-      count += 1
     end
 
-    connection.puts consumed.join("")
-  ensure
-    connection.close
+    count += 1
   end
+
+  connection.close
+  consumed.join("")
 end
 
-cleanup_temp
+command = ARGV[0]
 
-# vim: set ft=ruby
+if command == "kill"
+  kill_server
+else
+  case command
+  when "check"
+    ensure_server_running
+    File.write("/tmp/somelog.txt", ARGV.join(" "))
+    puts send_command("check #{ARGV[1]}")
+    # puts `ghc-mod #{ARGV.join(" " )}`
+  when "version"
+    puts `ghc-mod version`
+  else
+    puts `ghc-mod #{ARGV.join(" ")}`
+  end
+end
