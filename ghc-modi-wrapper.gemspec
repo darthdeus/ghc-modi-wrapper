@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.version       = GhcModiWrapper::VERSION
   spec.authors       = ["Jakub Arnold"]
   spec.email         = ["darthdeus@gmail.com"]
-  spec.summary       = %q{TODO: Write a short summary. Required.}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
+  spec.summary       = %q{ghc-mod wrapper for VIM ... because syntastic can't do async}
+  spec.description   = %q{ghc-mod wrapper for VIM ... because syntastic can't do async}
   spec.homepage      = ""
   spec.license       = "MIT"
 

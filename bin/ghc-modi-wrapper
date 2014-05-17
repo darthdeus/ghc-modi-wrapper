@@ -51,9 +51,11 @@ def ensure_server_running
       cleanup_temp
       exit 1
     end
+    false
   else
-    Process.spawn("ruby internet.rb")
+    Process.spawn("ghc-modi-wrapper-server -f")
     sleep 1
+    true
   end
 end
 
@@ -88,10 +90,8 @@ if command == "kill"
 else
   case command
   when "check"
-    ensure_server_running
-    File.write("/tmp/somelog.txt", ARGV.join(" "))
-    puts send_command("check #{ARGV[1]}")
-    # puts `ghc-mod #{ARGV.join(" " )}`
+    result = ensure_server_running
+    puts send_command("check #{ARGV[1]}") if result
   when "version"
     puts `ghc-mod version`
   else
