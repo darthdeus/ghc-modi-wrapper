@@ -1,11 +1,12 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'ghc/modi/wrapper/version'
+require 'ghc-modi-wrapper'
+require 'ghc-modi-wrapper/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "ghc-modi-wrapper"
-  spec.version       = Ghc::Modi::Wrapper::VERSION
+  spec.version       = GhcModiWrapper::VERSION
   spec.authors       = ["Jakub Arnold"]
   spec.email         = ["darthdeus@gmail.com"]
   spec.summary       = %q{TODO: Write a short summary. Required.}
