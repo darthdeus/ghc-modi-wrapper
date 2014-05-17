@@ -1,0 +1,67 @@
+#!/usr/bin/env ruby
+require "socket"
+require "fileutils"
+require "open3"
+
+PID_FILE = ".ghc-modi-wrapper.pid"
+SOCKET_FILE = ".ghc-modi-wrapper.sock"
+
+def cleanup_temp
+  FileUtils.rm_f(PID_FILE)
+  FileUtils.rm_f(SOCKET_FILE)
+end
+
+def running_pid
+  if File.exists?(PID_FILE)
+    File.read(PID_FILE).strip.to_i
+  else
+    # TODO - do this in a better way
+    -1
+  end
+end
+
+if File.exists?(PID_FILE)
+  if ARGV[0] == "-f"
+    Process.kill("KILL", running_pid) rescue nil
+    cleanup_temp
+  else
+    puts "Server already running, either kill it or remove #{PID_FILE}"
+    exit 1
+  end
+end
+
+File.write(PID_FILE, Process.pid)
+
+stdin, stdout, stdderr, wait_thr = Open3.popen3("ghc-modi")
+
+Socket.unix_server_loop(SOCKET_FILE) do |connection|
+  begin
+    command = connection.gets
+    puts "received #{command}"
+    stdin.puts command
+
+    consuming = true
+    consumed = []
+
+    count = 0
+    while consuming
+      line = stdout.gets
+      puts line
+
+      if count > 100 || (line && line.strip == "OK")
+        consuming = false
+      end
+
+      consumed << line
+      count += 1
+    end
+
+    connection.puts consumed.join("")
+  ensure
+    connection.close
+  end
+end
+
+cleanup_temp
+
+# vim: set ft=ruby
