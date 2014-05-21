@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["darthdeus@gmail.com"]
   spec.summary       = %q{ghc-mod wrapper for VIM ... because syntastic can't do async}
   spec.description   = %q{ghc-mod wrapper for VIM ... because syntastic can't do async}
-  spec.homepage      = ""
+  spec.homepage      = "http://github.com/darthdeus/ghc-modi-wrapper"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")

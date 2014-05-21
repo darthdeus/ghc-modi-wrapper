@@ -51,11 +51,9 @@ def ensure_server_running
       cleanup_temp
       exit 1
     end
-    false
   else
     Process.spawn("ghc-modi-wrapper-server -f")
     sleep 1
-    true
   end
 end
 
@@ -85,16 +83,36 @@ end
 
 command = ARGV[0]
 
+File.write("/tmp/something.txt", ARGV.join(" "))
+
 if command == "kill"
   kill_server
 else
   case command
   when "check"
-    result = ensure_server_running
-    puts send_command("check #{ARGV[1]}") if result
+    ensure_server_running
+    puts send_command("check #{ARGV[1]}")
+  when "browse"
+    final_command = ARGV.join(" ").split(" ").grep(/^[^-]/).join(" ")
+
+    File.open("/tmp/something.txt", "a") do |f|
+      f.puts ARGV.join(" ")
+      f.puts "Final command: #{final_command}"
+    end
+
+    puts send_command(final_command)
   when "version"
     puts `ghc-mod version`
   else
+    # if ARGV.join(" ") =~ / type /
+    #   ensure_server_running
+    #   puts send_command(ARGV.join(" ").sub(/.*type/, "type"))
+    # else
+    File.open("/tmp/something.txt", "a") do |f|
+      f.puts ARGV.join(" ")
+    end
+
     puts `ghc-mod #{ARGV.join(" ")}`
+    # end
   end
 end
